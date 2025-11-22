@@ -24,10 +24,12 @@ public class JwtFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         try {
             System.out.println("JwtFilter");
-            if (Objects.equals(environment.getProperty("env"), "dev")) {
-                return chain.filter(exchange);
-            }
             ServerHttpRequest request = exchange.getRequest();
+            if (Objects.equals(environment.getProperty("env"), "dev")) {
+                ServerHttpRequest mutatedRequest = request.mutate().header("X-Username", "sougata").header("X-role", "ROLE_ADMIN").build();
+                ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
+                return chain.filter(mutatedExchange);
+            }
 
             if (request.getURI().getPath().contains("/auth")){
                 return chain.filter(exchange);
