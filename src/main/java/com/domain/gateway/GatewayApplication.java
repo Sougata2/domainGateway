@@ -3,7 +3,7 @@ package com.domain.gateway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.domain.gateway", "com.domain.cryptography"})
 public class GatewayApplication {
 
 	public static void main(String[] args) {
