@@ -36,6 +36,21 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
+        } else if (ex instanceof Exception) {
+            errorDto.setMessage(ex.getMessage());
+            errorDto.setPath("[%s] : %s".formatted(exchange.getRequest().getMethod(), exchange.getRequest().getURI().getPath()));
+            errorDto.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            errorDto.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
+
+            try {
+                byte[] responseBytes = new ObjectMapper().writeValueAsBytes(errorDto);
+                exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(responseBytes);
+                return exchange.getResponse().writeWith(Mono.just(buffer));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
         return Mono.error(ex);
     }
