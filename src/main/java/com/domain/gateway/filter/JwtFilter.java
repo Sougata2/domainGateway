@@ -1,6 +1,8 @@
 package com.domain.gateway.filter;
 
+import com.domain.gateway.exception.classes.AuthenticationException;
 import com.domain.gateway.jwt.service.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -33,17 +35,17 @@ public class JwtFilter implements GlobalFilter, Ordered {
                 return chain.filter(mutatedExchange);
             }
 
-            if (request.getURI().getPath().contains("/auth")){
+            if (request.getURI().getPath().contains("/auth")) {
                 return chain.filter(exchange);
             }
 
-            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)){
-                throw new RuntimeException("Authorization Header Not Found");
+            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+                throw new AuthenticationException("Authorization Header Not Found");
             }
 
             String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-            if (authHeader == null || !authHeader.startsWith("Bearer ")){
-                throw new RuntimeException("JWT Token Not Found");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                throw new AuthenticationException("JWT Token Not Found");
             }
 
 
@@ -73,6 +75,8 @@ public class JwtFilter implements GlobalFilter, Ordered {
 
                         return chain.filter(mutatedExchange);
                     });
+        } catch (AuthenticationException | ExpiredJwtException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
