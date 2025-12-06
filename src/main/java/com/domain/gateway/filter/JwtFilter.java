@@ -55,7 +55,7 @@ public class JwtFilter implements GlobalFilter, Ordered {
 
             return builder.build()
                     .get()
-                    .uri("lb://auth-service/user/get-default-role/%s".formatted(username))
+                    .uri("lb://auth-service/auth/verify-user/%s".formatted(username))
                     .retrieve()
                     .onStatus(HttpStatusCode::isError,
                             clientResponse -> Mono.error(new RuntimeException("Invalid username in token")))
