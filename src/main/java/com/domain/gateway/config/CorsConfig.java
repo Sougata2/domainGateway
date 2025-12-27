@@ -16,7 +16,8 @@ public class CorsConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173", "*"));
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000"));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setExposedHeaders(List.of(HttpHeaders.CONTENT_DISPOSITION));
         corsConfiguration.setAllowedHeaders(List.of("*"));
