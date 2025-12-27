@@ -39,17 +39,23 @@ public class JwtFilter implements GlobalFilter, Ordered {
                 return chain.filter(exchange);
             }
 
-            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                throw new AuthenticationException("Authorization Header Not Found");
-            }
+            String token = null;
 
             String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                throw new AuthenticationException("JWT Token Not Found");
+
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
             }
 
+            if (token == null && request.getCookies().containsKey(HttpHeaders.AUTHORIZATION)) {
+                token = Objects.requireNonNull(request.getCookies().getFirst(HttpHeaders.AUTHORIZATION))
+                        .getValue();
+            }
 
-            String token = authHeader.substring(7);
+            if (token == null) {
+                throw new AuthenticationException("JWT Token not found");
+            }
+
             String username = jwtService.validateToken(token);
 
 
